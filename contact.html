@@ -627,10 +627,10 @@
                 observer.observe(el);
             });
 
-            // 4. Contact Form Handling with visual loading state
+            // 4. Contact Form Handling with actual API connection
             const contactForm = document.getElementById('contactForm');
             if (contactForm) {
-                contactForm.addEventListener('submit', function(e) {
+                contactForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const submitBtn = contactForm.querySelector('button[type="submit"]');
@@ -640,18 +640,44 @@
                     submitBtn.style.width = width + 'px';
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                     submitBtn.disabled = true;
-                    
-                    // Simulate network delay
-                    setTimeout(() => {
-                        showNotification('Success! Your message has been sent. We will contact you shortly.');
-                        contactForm.reset();
+
+                    // Form එකෙන් දත්ත ලබා ගැනීම
+                    const formData = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        subject: document.getElementById('subject').value,
+                        message: document.getElementById('message').value
+                    };
+
+                    try {
+                        // Back-end API එකට දත්ත යැවීම
+                        const response = await fetch('http://localhost:5000/api/contact', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            showNotification('Success! Your message has been sent. We will contact you shortly.');
+                            contactForm.reset();
+                        } else {
+                            showNotification('Failed to send message: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('An error occurred. Please try again later.');
+                    } finally {
                         submitBtn.innerHTML = originalText;
                         submitBtn.style.width = '';
                         submitBtn.disabled = false;
-                    }, 1500);
+                    }
                 });
             }
-        });
 
         // 5. Global Notification Function
         window.showNotification = function(message) {
