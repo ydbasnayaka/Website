@@ -651,10 +651,11 @@
 
                     try {
                         // Railway Back-end එකට දත්ත යැවීම
-                        const response = await fetch('https://formspree.io/f/xjglzgde/api/contact', {
+                        const response = await fetch('https://formspree.io/f/xjglzgde', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
+                                'Accept': 'application/json'
                             },
                             body: JSON.stringify(formData)
                         });
